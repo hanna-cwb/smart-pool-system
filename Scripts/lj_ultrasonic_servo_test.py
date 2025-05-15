@@ -6,7 +6,7 @@ from adafruit_pca9685 import PCA9685
 
 # Pins definieren
 TRIG_PIN = 23
-ECHO_PIN = 24
+ECHO_PIN = 18
 
 # GPIO Setup
 GPIO.setmode(GPIO.BCM)
