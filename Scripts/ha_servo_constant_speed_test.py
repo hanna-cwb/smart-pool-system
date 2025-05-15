@@ -26,7 +26,7 @@ try:
     time.sleep(2)
 
     print("Servo: Pause (2 Sekunden)")
-    set_servo_pulse(pca, servo_channel, 1555)  # 1500 µs = neutral (Stop)
+    set_servo_pulse(pca, servo_channel, 1535)  # 1550 µs = neutral (Hanna Pi),
     time.sleep(2)
     
     print("Servo: konstante Vorwärtsbewegung für 2 Sekunden")

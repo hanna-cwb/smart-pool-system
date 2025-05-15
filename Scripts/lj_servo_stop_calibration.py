@@ -22,7 +22,7 @@ def set_servo_pulse_us(channel, pulse_us):
 print("Kalibrierung gestartet. Teste verschiedene µs-Werte (Stop liegt meist zwischen 1450–1550 µs)...")
 
 try:
-    for us in range(1450, 1560, 5):
+    for us in range(1560, 1580, 5):
         print(f"Teste Puls: {us} µs")
         set_servo_pulse_us(servo, us)
         time.sleep(2)
@@ -32,7 +32,6 @@ try:
 except KeyboardInterrupt:
     print("Abbruch durch Benutzer.")
 finally:
-    #set_servo_pulse_us(servo, 1500)
     servo.duty_cycle = 0x0000  # Neutral
     pca.deinit()
     print("Servo gestoppt und PWM deaktiviert.")
