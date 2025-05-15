@@ -6,9 +6,9 @@ from waveshare_epd import epd1in54
 import RPi.GPIO as GPIO
 
 # GPIO-Pins für E-Ink Display
-EPD_RST = 17
+EPD_RST = 12
 EPD_DC = 25
-EPD_CS = 8      # Wird intern verwendet (SPI)
+EPD_CS = 16      # Wird intern verwendet (SPI)
 EPD_BUSY = 24
 
 # Sensor initialisieren
