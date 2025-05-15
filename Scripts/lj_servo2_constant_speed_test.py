@@ -26,7 +26,7 @@ try:
     time.sleep(2)
 
     print("Servo: Pause (2 Sekunden)")
-    set_servo_pulse(pca, servo_channel, 1550)  # 1500 µs = neutral (Stop)
+    set_servo_pulse(pca, servo_channel, 1555)  # 1500 µs = neutral (Stop)
     time.sleep(2)
     
     print("Servo: konstante Vorwärtsbewegung für 2 Sekunden")
@@ -37,7 +37,7 @@ except KeyboardInterrupt:
     print("Abgebrochen mit STRG+C.")
 finally:
     print("Servo: Stop")
-    set_servo_pulse(pca, servo_channel, 1550)  # Stop
-    #servo.duty_cycle = 0x0000
+    #set_servo_pulse(pca, servo_channel, 1550)  # Stop
+    servo.duty_cycle = 0x0000
     pca.deinit()
     print("PWM deaktiviert.")
