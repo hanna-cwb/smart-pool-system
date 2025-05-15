@@ -17,7 +17,7 @@ GPIO.setup(ECHO_PIN, GPIO.IN)
 i2c = busio.I2C(board.SCL, board.SDA)
 pca = PCA9685(i2c, address=0x41)
 pca.frequency = 50
-servo_channel = 0
+servo_channel = 1
 
 def set_servo_pulse(pca, channel, pulse_us):
     pulse_length = 1000000
@@ -50,19 +50,19 @@ try:
 
         if dist < 10:  # zu wenig Wasser
             print("Wenig Wasser – Pumpe AN")
-            set_servo_pulse(pca, servo_channel, 1600)  # vorwärts
+            set_servo_pulse(pca, servo_channel, 1620)  # vorwärts
         elif dist > 20:  # genug Wasser
             print("Genug Wasser – Pumpe AUS")
-            set_servo_pulse(pca, servo_channel, 1500)  # stop
+            set_servo_pulse(pca, servo_channel, 1570)  # stop
         else:
             print("Wasserstand ok – Pumpe LANGSAM")
-            set_servo_pulse(pca, servo_channel, 1520)  # langsam drehen
+            set_servo_pulse(pca, servo_channel, 1580)  # langsam drehen
 
         time.sleep(1)
 
 except KeyboardInterrupt:
     print("Abbruch mit STRG+C")
 finally:
-    set_servo_pulse(pca, servo_channel, 1500)  # Stop
+    set_servo_pulse(pca, servo_channel, 1570)  # Stop
     pca.deinit()
     GPIO.cleanup()
