@@ -50,13 +50,13 @@ try:
 
         if dist < 10:  # zu wenig Wasser
             print("Wenig Wasser – Pumpe AN")
-            set_servo_pulse(pca, servo_channel, 1620)  # vorwärts
+            set_servo_pulse(pca, servo_channel, 1540)  # vorwärts
         elif dist > 20:  # genug Wasser
             print("Genug Wasser – Pumpe AUS")
             set_servo_pulse(pca, servo_channel, 1570)  # stop
         else:
             print("Wasserstand ok – Pumpe LANGSAM")
-            set_servo_pulse(pca, servo_channel, 1580)  # langsam drehen
+            set_servo_pulse(pca, servo_channel, 1560)  # langsam drehen
 
         time.sleep(1)
 
