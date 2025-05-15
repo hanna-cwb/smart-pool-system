@@ -37,7 +37,7 @@ except KeyboardInterrupt:
     print("Abgebrochen mit STRG+C.")
 finally:
     print("Servo: Stop")
-    #set_servo_pulse(pca, servo_channel, 1550)  # Stop
-    servo.duty_cycle = 0x0000
+    set_servo_pulse(pca, servo_channel, 1535)  # Stop
+    #servo.duty_cycle = 0x0000
     pca.deinit()
     print("PWM deaktiviert.")
