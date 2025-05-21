@@ -11,10 +11,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # MQTT Configuration
-MQTT_HOST = "192.168.1.1"
+MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
-MQTT_TOPIC = "/topic/capture"
+MQTT_TOPIC = "/sensor/distance"
 
 # Load the Haar cascade for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -41,16 +41,8 @@ def generate_frames():
     global current_frame
     while True:
         # Capture frame-by-frame
-        frame = picam2.capture_array()
-        
-        # Convert to grayscale for face detection
-        # gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)  
-        # Detect faces
-        # faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-        # Draw rectangles around faces
-        # for (x, y, w, h) in faces:
-        #    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        
+        frame = picam2.capture_array(wait=True)
+   
         with frame_lock:
             current_frame = frame.copy()
 
@@ -70,12 +62,14 @@ def generate_frames():
 def save_current_frame(source):
     with frame_lock:
         if current_frame is None:
-            return jsonify({"error": "No frame available"}), 500
+            logging.warning("No frame available")
+            return False
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{source}_{timestamp}.jpg"
         cv2.imwrite(filename, current_frame)
         print(f"[{source.upper()}] Foto gespeichert: {filename}")
+        return True
 
 
 # Define on_connect event Handler
@@ -104,6 +98,7 @@ def on_message(client, userdata, msg):
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 # Register Event Handlers
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe

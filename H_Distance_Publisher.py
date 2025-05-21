@@ -9,10 +9,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # MQTT Configuration
-MQTT_HOST = "192.168.1.1"
+MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
-MQTT_TOPIC = "/topic/capture"
+MQTT_TOPIC = "/sensor/distance"
 
 # I2C-Bus initialisieren (Raspberry Pi verwendet I2C-1)
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -32,7 +32,7 @@ def on_publish(client, userdata, mid):
 
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
 # Register Event Handlers
 mqttc.on_connect = on_connect
