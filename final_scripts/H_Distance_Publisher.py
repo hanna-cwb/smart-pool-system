@@ -14,9 +14,9 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/distance"
 
-# I2C-Bus initialisieren (Raspberry Pi verwendet I2C-1)
+# Initialize I2C-Bus 
 i2c = busio.I2C(board.SCL, board.SDA)
-# Sensor initialisieren
+# Initialize Sensor
 sensor = adafruit_vl6180x.VL6180X(i2c)
 
 # Define on_connect event Handler
@@ -45,13 +45,13 @@ try:
     # Start MQTT loop to handle callbacks
     mqttc.loop_start()
 
-    print("Starte Messung...")
+    print("Start distance measuring...")
 
     try:
       while True: 
-          # Abstand in Millimeter messen
+          # Measaure distance in mm
           distance = sensor.range
-          print(f"Entfernung: {distance} mm")
+          print(f"Distance: {distance} mm")
 
           if distance < 50:
               message = "Capture"
@@ -59,7 +59,7 @@ try:
 
           time.sleep(1)
     except KeyboardInterrupt:
-      print("\nMessung beendet.")
+      print("\nDistance measuring stopped.")
 
     # Give some time for message to be sent before disconnecting
     mqttc.loop_stop()

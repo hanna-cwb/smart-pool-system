@@ -3,9 +3,11 @@ import time
 import threading
 from datetime import datetime
 from picamera2 import Picamera2
-from flask import Flask, Response, jsonify
+from flask import Flask, Response
 import paho.mqtt.client as mqtt
 import logging
+import os
+import base64
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -15,6 +17,11 @@ MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/distance"
+MQTT_IMG_TOPIC = "/camera/images"
+
+# Directory for saving photos
+IMAGE_FOLDER = os.path.join(os.path.dirname(__file__), "Images")
+os.makedirs(IMAGE_FOLDER, exist_ok=True)
 
 # Load the Haar cascade for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -36,15 +43,29 @@ app = Flask(__name__)
 current_frame = None
 frame_lock = threading.Lock()
 
+# Initialize MQTT Client
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
+
+# Camera loop
+def camera_loop():
+    global current_frame
+    while True:
+        frame = picam2.capture_array(wait=True)
+        with frame_lock:
+            current_frame = frame.copy()
+        time.sleep(1)
+
+
 # Function to generate frames for the video stream
 def generate_frames():
     global current_frame
     while True:
-        # Capture frame-by-frame
-        frame = picam2.capture_array(wait=True)
-   
+        
         with frame_lock:
-            current_frame = frame.copy()
+            if current_frame is None:
+                continue
+            frame = current_frame.copy()
 
         # Encode the frame as JPEG
         ret, buffer = cv2.imencode('.jpg', frame)
@@ -58,19 +79,34 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
+def publish_image(filepath):
+    with open(filepath, "rb") as img:
+        b64img = base64.b64encode(img.read()).decode()
+        mqttc.publish(MQTT_IMG_TOPIC, b64img)
+
 # frame saving
 def save_current_frame(source):
+    global current_frame
     with frame_lock:
-        if current_frame is None:
-            logging.warning("No frame available")
+        frame = current_frame.copy()
+        if frame is None:
+            logging.warning("No frame captured")
             return False
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{source}_{timestamp}.jpg"
-        cv2.imwrite(filename, current_frame)
-        print(f"[{source.upper()}] Foto gespeichert: {filename}")
-        return True
+        filepath = os.path.join(IMAGE_FOLDER, filename)
+        
+        success = cv2.imwrite(filepath, current_frame)
 
+        if success:
+            logging.info(f"Foto saved at {filepath}")
+            # TODO HANNA pls try but probably won't work
+            # publish_image(filepath)
+            return filename
+        else:
+            logging.error("Error while saving foto")
+            return False
 
 # Define on_connect event Handler
 def on_connect(client, userdata, flags, rc):
@@ -95,14 +131,15 @@ def on_message(client, userdata, msg):
         save_current_frame("mqtt_trigger")
     logging.info(f"Received Message: {msg.payload.decode()} from Topic: {msg.topic}")
 
-# Initialize MQTT Client
-mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+# Define on_publish event Handler
+def on_publish(client, userdata, mid):
+    logging.info("Message Published successfully")
 
-mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 # Register Event Handlers
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
+mqttc.on_publish = on_publish
 
 try:
     # Connect to MQTT Broker
@@ -118,11 +155,8 @@ except Exception as e:
 @app.route('/video')
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-# Route to capture foto
-@app.route('/capture')
-def capture_manual():
-    return save_current_frame("manual")
 
 # Run the Flask app
 if __name__ == '__main__':
+    threading.Thread(target=camera_loop, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)
