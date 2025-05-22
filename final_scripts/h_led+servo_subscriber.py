@@ -13,10 +13,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
-MQTT_TOPIC = "/sensor/servo+led"
+MQTT_TOPIC = "/sensor/ph"
 
 # Hardware Setup
-LED_PIN = 27
+LED_PIN = 17
 SERVO_CHANNEL = 0
 
 GPIO.setmode(GPIO.BCM)
@@ -26,9 +26,17 @@ i2c = busio.I2C(board.SCL, board.SDA)
 pca = PCA9685(i2c, address=0x41)
 pca.frequency = 50
 
+def set_servo_pulse(pca, channel, pulse_us):
+    pulse_length = 1000000    # 1,000,000 us per second
+    pulse_length //= pca.frequency  # us per period
+    pulse_scale = 65535 / pulse_length
+    pwm_value = int(pulse_us * pulse_scale)
+    pca.channels[channel].duty_cycle = pwm_value
+    
 # Steuerfunktionen
 def activate_servo():
-    pca.channels[SERVO_CHANNEL].duty_cycle = 0x5000 #default 0x6000
+    #pca.channels[SERVO_CHANNEL].duty_cycle = 0x6000 #default 0x6000
+    set_servo_pulse(pca, SERVO_CHANNEL, 1580)
 
 def deactivate_servo():
     pca.channels[SERVO_CHANNEL].duty_cycle = 0x0000
@@ -36,13 +44,13 @@ def deactivate_servo():
 # MQTT Callback
 def on_connect(client, userdata, flags, rc):
     print("MQTT verbunden.")
-    client.subscribe("sensor/ph_value")
+    client.subscribe("/sensor/ph")
 
 def on_message(client, userdata, msg):
     try:
         ph = float(msg.payload.decode())
         print(f"Empfangen: pH = {ph}")
-        if ph > 7.5:
+        if ph > 7.57:
             GPIO.output(LED_PIN, GPIO.HIGH)
             activate_servo()
         else:
@@ -61,13 +69,20 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
   
 try:
-    # Connect to MQTT Broker
-    mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-    
-    # Start the network loop
-    mqttc.loop_forever()
+    try:
+        while True:
+            # Connect to MQTT Broker
+            mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+            
+            # Start the network loop
+            mqttc.loop_forever()
+    except KeyboardInterrupt:
+      deactivate_servo()
+      GPIO.output(LED_PIN, GPIO.LOW)
+      print("\nMessung beendet.")
 
 except Exception as e:
+    deactivate_servo()
     logging.error(f"MQTT Error: {e}")  
     GPIO.cleanup()
     pca.deinit()

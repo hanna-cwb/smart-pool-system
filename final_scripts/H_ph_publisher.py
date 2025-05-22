@@ -38,7 +38,7 @@ mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
 # Register Event Handlers
 mqttc.on_connect = on_connect
-mqttc.on_publish = on_publish
+#mqttc.on_publish = on_publish
 
 # Kalibrierung: 2.667 V = pH 7
 def voltage_to_ph(voltage):
@@ -59,8 +59,8 @@ try:
         voltage = channel.voltage
         ph_value = voltage_to_ph(voltage)
         print(f"Publishing: pH = {ph_value}, Voltage = {voltage:.3f} V")
-        mqttc.publish("sensor/ph_value", ph_value)
-        mqttc.publish("sensor/ph_voltage", voltage)
+        mqttc.publish("/sensor/ph", ph_value)
+        #mqttc.publish("sensor/ph_voltage", voltage)
         time.sleep(2)
     except KeyboardInterrupt:
       print("\nMessung beendet.")
