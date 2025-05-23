@@ -52,11 +52,13 @@ try:
           # Measaure distance in mm
           distance = sensor.range
           print(f"Distance: {distance} mm")
-
+          message = ""
           if distance < 50:
               message = "Capture"
-              mqttc.publish(MQTT_TOPIC, message)
+          else:
+              message = "No motion detected"
 
+          mqttc.publish(MQTT_TOPIC, message)
           time.sleep(1)
     except KeyboardInterrupt:
       print("\nDistance measuring stopped.")
