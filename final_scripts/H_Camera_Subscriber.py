@@ -54,7 +54,6 @@ def generate_frame():
     frame = picam2.capture_array(wait=True)
     with frame_lock:
         current_frame = frame.copy()
-    time.sleep(1)
 
 
 # Function to generate frames for the video stream
@@ -87,8 +86,9 @@ def publish_image(filepath):
 # frame saving
 def save_current_frame(source):
     global current_frame
+    
+    generate_frame()
     with frame_lock:
-        generate_frame()
         if current_frame is None:
             logging.warning("No frame available after calling generate_frames()")
             return
