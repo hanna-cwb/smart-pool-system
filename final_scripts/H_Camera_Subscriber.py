@@ -88,10 +88,13 @@ def publish_image(filepath):
 def save_current_frame(source):
     global current_frame
     with frame_lock:
-        frame = current_frame.copy()
-        if frame is None:
-            logging.warning("No frame captured")
-            return False
+        if current_frame is None:
+            logging.warning("No frame available")
+            return
+        generate_frames()
+        if current_frame is None:
+            logging.warning("No frame available after calling generate_frames()")
+            return
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{source}_{timestamp}.jpg"
