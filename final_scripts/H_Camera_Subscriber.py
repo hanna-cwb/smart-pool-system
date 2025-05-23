@@ -142,15 +142,16 @@ mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
 mqttc.on_publish = on_publish
 
-try:
-    # Connect to MQTT Broker
-    mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-    
-    # Start the network loop
-    mqttc.loop_forever()
+def start_mqtt():
+    try:
+        # Connect to MQTT Broker
+        mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+        
+        # Start the network loop
+        mqttc.loop_forever()
 
-except Exception as e:
-    logging.error(f"MQTT Error: {e}")
+    except Exception as e:
+        logging.error(f"MQTT Error: {e}")
 
 # Route to stream the video
 @app.route('/video')
@@ -159,4 +160,5 @@ def video():
 
 # Run the Flask app
 if __name__ == '__main__':
+    threading.Thread(target=start_mqtt, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)
