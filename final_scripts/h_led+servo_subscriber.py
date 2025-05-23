@@ -50,7 +50,7 @@ def on_message(client, userdata, msg):
     try:
         ph = float(msg.payload.decode())
         print(f"Empfangen: pH = {ph}")
-        if ph > 7.57:
+        if ph > 7.24:
             GPIO.output(LED_PIN, GPIO.HIGH)
             activate_servo()
         else:
