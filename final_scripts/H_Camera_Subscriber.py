@@ -47,14 +47,14 @@ frame_lock = threading.Lock()
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
-# Camera loop
-def camera_loop():
+# Generate frame
+def generate_frame():
     global current_frame
-    while True:
-        frame = picam2.capture_array(wait=True)
-        with frame_lock:
-            current_frame = frame.copy()
-        time.sleep(1)
+    
+    frame = picam2.capture_array(wait=True)
+    with frame_lock:
+        current_frame = frame.copy()
+    time.sleep(1)
 
 
 # Function to generate frames for the video stream
@@ -88,22 +88,20 @@ def publish_image(filepath):
 def save_current_frame(source):
     global current_frame
     with frame_lock:
-        if current_frame is None:
-            logging.warning("No frame available")
-            return
-        generate_frames()
+        generate_frame()
         if current_frame is None:
             logging.warning("No frame available after calling generate_frames()")
             return
-        
+        logging.info("Frame now available")
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{source}_{timestamp}.jpg"
         filepath = os.path.join(IMAGE_FOLDER, filename)
         
         success = cv2.imwrite(filepath, current_frame)
 
+        logging.info(f"Foto saved at {filepath}")
         if success:
-            logging.info(f"Foto saved at {filepath}")
             # TODO HANNA pls try but probably won't work
             # publish_image(filepath)
             return filename
@@ -161,5 +159,4 @@ def video():
 
 # Run the Flask app
 if __name__ == '__main__':
-    threading.Thread(target=camera_loop(), daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)
