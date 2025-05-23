@@ -61,11 +61,11 @@ def camera_loop():
 def generate_frames():
     global current_frame
     while True:
-        
+        # Capture frame-by-frame
+        frame = picam2.capture_array(wait=True)
+
         with frame_lock:
-            if current_frame is None:
-                continue
-            frame = current_frame.copy()
+            current_frame = frame.copy()
 
         # Encode the frame as JPEG
         ret, buffer = cv2.imencode('.jpg', frame)
@@ -158,5 +158,5 @@ def video():
 
 # Run the Flask app
 if __name__ == '__main__':
-    threading.Thread(target=camera_loop, daemon=True).start()
+    threading.Thread(target=camera_loop(), daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)
