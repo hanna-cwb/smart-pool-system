@@ -1,47 +1,21 @@
+import Adafruit_DHT
 import time
-import board
-import adafruit_dht
-from PIL import Image, ImageDraw, ImageFont
-from waveshare_epd import epd1in54
-import RPi.GPIO as GPIO
 
-# GPIO-Pins für E-Ink Display
-EPD_RST = 12
-EPD_DC = 25
-EPD_CS = 16      # Wird intern verwendet (SPI)
-EPD_BUSY = 24
+# Sensor Configuration
+SENSOR_TYPE = Adafruit_DHT.DHT11
+GPIO_PIN = 4  # GPIO4 (physical pin 7)
 
-# Sensor initialisieren
-dhtDevice = adafruit_dht.DHT11(board.D4)  # GPIO4
-
-# Display initialisieren
-epd = epd1in54.EPD()
-epd.init()
-epd.Clear(0xFF)
-
-# Schriftart laden
-font = ImageFont.load_default()
-
+# Main Loop
 try:
     while True:
-        temperature = dhtDevice.temperature
-        humidity = dhtDevice.humidity
-        print(f"Temperatur: {temperature} °C, Luftfeuchtigkeit: {humidity}%")
+        temperature = Adafruit_DHT.read_retry(SENSOR_TYPE, GPIO_PIN)
 
-        # Bild vorbereiten
-        image = Image.new('1', (epd.width, epd.height), 255)
-        draw = ImageDraw.Draw(image)
+        if temperature is not None:
+            print(f"Temperature: {temperature:.1f} °C")
+        else:
+            print("Sensor error: could not read data.")
 
-        # Text zeichnen
-        draw.text((10, 40), f"Temp: {temperature} °C", font=font, fill=0)
-        draw.text((10, 70), f"Feuchte: {humidity} %", font=font, fill=0)
-
-        # Bild anzeigen
-        epd.display(epd.getbuffer(image))
-
-        time.sleep(10)  # alle 10 Sekunden aktualisieren
+        time.sleep(10)
 
 except KeyboardInterrupt:
-    print("Beendet")
-    epd.sleep()
-    GPIO.cleanup()
+    print("Measurement stopped by user.")
