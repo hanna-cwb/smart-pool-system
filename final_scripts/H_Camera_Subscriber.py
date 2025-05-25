@@ -102,8 +102,7 @@ def save_current_frame(source):
 
         logging.info(f"Foto saved at {filepath}")
         if success:
-            # TODO HANNA pls try but probably won't work
-            # publish_image(filepath)
+            publish_image(filepath)
             return filename
         else:
             logging.error("Error while saving foto")

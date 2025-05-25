@@ -42,15 +42,12 @@ def on_message(client, userdata, msg):
     try:
         dist = float(msg.payload.decode())
         logging.info(f"Received distance: {dist} cm")
-        if dist < 10:
+        if dist > 15:
             logging.info("Low water level – turning pump ON")
             set_servo_pulse(pca, SERVO_CHANNEL, 1520)
-        elif dist > 20:
+        else:
             logging.info("High water level – turning pump OFF")
             set_servo_pulse(pca, SERVO_CHANNEL, 1570)
-        else:
-            logging.info("Water level OK – running pump slowly")
-            set_servo_pulse(pca, SERVO_CHANNEL, 1560)
     except ValueError:
         logging.error("Invalid distance value received.")
 
