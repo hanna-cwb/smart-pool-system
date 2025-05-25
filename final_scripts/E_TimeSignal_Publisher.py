@@ -1,9 +1,8 @@
+
 import time
 from datetime import datetime
 import logging
 import paho.mqtt.client as mqtt
-from PIL import Image, ImageDraw, ImageFont
-from waveshare_epd import epd1in54
 
 # === Logging Configuration ===
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -17,22 +16,11 @@ MQTT_TOPIC = "/sensor/timeSignal"
 # === Time Schedule: (HH:MM, Duration in Minutes)
 PUMP_SCHEDULE = [("08:00", 2), ("18:00", 2)]
 
-# === E-Ink Display Setup ===
-epd = epd1in54.EPD()
-epd.init()
-epd.Clear(0xFF)
-font = ImageFont.load_default()
 
 def display_status(time_str, status_text):
-    try:
-        image = Image.new('1', (epd.width, epd.height), 255)
-        draw = ImageDraw.Draw(image)
-        draw.text((10, 30), f"Uhrzeit: {time_str}", font=font, fill=0)
-        draw.text((10, 50), f"Pumpe: {status_text}", font=font, fill=0)
-        epd.display(epd.getbuffer(image))
-        logging.info(f"Display aktualisiert: {status_text}")
-    except Exception as e:
-        logging.error(f"Fehler beim Anzeigen: {e}")
+    # Simulierte Display-Ausgabe ohne GPIO/epd
+    print(f"[DISPLAY SIMULATION] Uhrzeit: {time_str} | Pumpe: {status_text}")
+
 
 # === MQTT Event Handlers ===
 def on_connect(client, userdata, flags, rc):
@@ -83,4 +71,3 @@ try:
 except Exception as e:
     logging.error(f"MQTT Error: {e}")
     mqttc.loop_stop()
-    epd.sleep()

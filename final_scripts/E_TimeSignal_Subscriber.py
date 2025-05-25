@@ -1,8 +1,7 @@
+
 import logging
 import paho.mqtt.client as mqtt
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
-from waveshare_epd import epd1in54
 
 # === Logging Configuration ===
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -13,23 +12,11 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
-# === E-Ink Display Setup ===
-epd = epd1in54.EPD()
-epd.init()
-epd.Clear(0xFF)
-font = ImageFont.load_default()
 
-def display_status(status_text):
-    try:
-        time_str = datetime.now().strftime("%H:%M")
-        image = Image.new('1', (epd.width, epd.height), 255)
-        draw = ImageDraw.Draw(image)
-        draw.text((10, 30), f"Uhrzeit: {time_str}", font=font, fill=0)
-        draw.text((10, 50), f"Pumpe: {status_text}", font=font, fill=0)
-        epd.display(epd.getbuffer(image))
-        logging.info(f"Display aktualisiert: {status_text}")
-    except Exception as e:
-        logging.error(f"Fehler beim Anzeigen: {e}")
+def display_status(time_str, status_text):
+    # Simulierte Display-Ausgabe ohne GPIO/epd
+    print(f"[DISPLAY SIMULATION] Uhrzeit: {time_str} | Pumpe: {status_text}")
+
 
 # === MQTT Event Handlers ===
 def on_connect(client, userdata, flags, rc):
@@ -46,7 +33,7 @@ def on_message(client, userdata, msg):
     payload = msg.payload.decode('utf-8').strip().lower()
     logging.info(f"Received Message: {payload}")
     if payload in ['ein', 'aus']:
-        display_status('EIN' if payload=='ein' else 'AUS')
+        display_status(datetime.now().strftime("%H:%M"), 'EIN' if payload=='ein' else 'AUS')
     else:
         logging.warning(f"Unknown payload: {payload}")
 
@@ -62,4 +49,3 @@ try:
     mqttc.loop_forever()
 except Exception as e:
     logging.error(f"MQTT Error: {e}")
-    epd.sleep()
