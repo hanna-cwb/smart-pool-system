@@ -7,7 +7,7 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # === MQTT Configuration ===
-MQTT_HOST = "192.168.8.113"
+MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
