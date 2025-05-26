@@ -8,7 +8,7 @@ import paho.mqtt.client as mqtt
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # === MQTT Configuration ===
-MQTT_HOST = "192.168.1.42"
+MQTT_HOST = "192.168.8.113"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
