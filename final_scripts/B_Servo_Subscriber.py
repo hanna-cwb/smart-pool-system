@@ -14,6 +14,7 @@ MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/waterlevel"
+MQTT_TOPIC_PUMP = "/sensor/pumpStatus"
 
 # Hardware Setup
 SERVO_CHANNEL = 1
@@ -44,9 +45,11 @@ def on_message(client, userdata, msg):
         logging.info(f"Received distance: {dist} cm")
         if dist > 15:
             logging.info("Low water level – turning pump ON")
+            mqttc.publish(MQTT_TOPIC_PUMP, "pump on")
             set_servo_pulse(pca, SERVO_CHANNEL, 1520)
         else:
             logging.info("High water level – turning pump OFF")
+            mqttc.publish(MQTT_TOPIC_PUMP, "pump off")
             set_servo_pulse(pca, SERVO_CHANNEL, 1570)
     except ValueError:
         logging.error("Invalid distance value received.")

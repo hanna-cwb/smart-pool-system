@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # GPIO configuration
 GPIO.setmode(GPIO.BCM)
-LED_PIN = 17
+LED_PIN = 16
 GPIO.setup(LED_PIN, GPIO.OUT)
 
 # MQTT configuration
