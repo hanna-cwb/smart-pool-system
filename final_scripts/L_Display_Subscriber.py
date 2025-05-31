@@ -14,7 +14,8 @@ MQTT_TOPIC = "/sensor/temperature"
 
 # E-Paper Display Setup
 epd = epd1in54_V2.EPD()
-epd.init()
+#epd.init()
+epd.init(isPartial=False)
 epd.Clear(0xFF)
 font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 24)
 
@@ -42,6 +43,7 @@ def on_message(client, userdata, msg):
 
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
