@@ -1,6 +1,8 @@
 import logging
 import paho.mqtt.client as mqtt
 from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
+from waveshare_epd import epd1in54_V2
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -11,8 +13,20 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
+# E-Paper Display Setup
+epd = epd1in54_V2.EPD()
+epd.init(isPartial=False)
+epd.Clear(0xFF)
+font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 24)
+
+def display_status(status_text):
+    image = Image.new('1', (epd.height, epd.width), 255)
+    draw = ImageDraw.Draw(image)
+    draw.text((10, 40), f"Pumpstatus: {status_text}°C", font=font, fill=0)
+    epd.display(epd.getbuffer(image))
+
 # Simulate Display-Output without GPIO/epd
-def display_status(time_str, status_text):
+def display_statusSim(time_str, status_text):
     print(f"[DISPLAY SIMULATION] Time: {time_str} | Pump: {status_text}")
 
 # Define MQTT Event Handlers
@@ -30,7 +44,7 @@ def on_message(client, userdata, msg):
     payload = msg.payload.decode('utf-8').strip().lower()
     logging.info(f"Received Message: {payload}")
     if payload in ['on', 'off']:
-        display_status(datetime.now().strftime("%H:%M"), 'ON' if payload=='on' else 'OFF')
+        display_status('ON' if payload=='on' else 'OFF')
     else:
         logging.warning(f"Unknown payload: {payload}")
 

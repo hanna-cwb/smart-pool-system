@@ -13,7 +13,7 @@ MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
 # Time Schedule: (HH:MM, Duration in minutes)
-PUMP_SCHEDULE = [("05:53", 2), ("18:00", 2)]
+PUMP_SCHEDULE = [("08:55", 2), ("18:00", 2)]
 
 # Simulate Display-Output without GPIO/epd
 def display_status(time_str, status_text):
