@@ -24,8 +24,8 @@ ads = ADS.ADS1115(i2c)
 analog_channel = AnalogIn(ads, ADS.P1) # A1
 
 # MQTT client configuration
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-mqtt_client.username_pw_set(username="mqtt-user", password="mqtt")
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -37,12 +37,12 @@ def on_publish(client, userdata, mid):
     logging.info("Message published successfully")
 
 # Register event handlers
-mqtt_client.on_connect = on_connect
-mqtt_client.on_publish = on_publish
+mqttc.on_connect = on_connect
+mqttc.on_publish = on_publish
 
 try:
-    mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-    mqtt_client.loop_start()
+    mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+    mqttc.loop_start()
 
     logging.info("Starting light level monitoring...")
 
@@ -53,11 +53,11 @@ try:
         logging.info(f"Measured voltage: {voltage:.3f} V")
 
         if voltage > DARKNESS_THRESHOLD and last_state != "on":
-            mqtt_client.publish(MQTT_TOPIC, "on")
+            mqttc.publish(MQTT_TOPIC, "on")
             logging.info("It's dark: sending LIGHT ON")
             last_state = "on"
         elif voltage <= DARKNESS_THRESHOLD and last_state != "off":
-            mqtt_client.publish(MQTT_TOPIC, "off")
+            mqttc.publish(MQTT_TOPIC, "off")
             logging.info("It's bright enough: sending LIGHT OFF")
             last_state = "off"
 
@@ -65,7 +65,7 @@ try:
 
 except KeyboardInterrupt:
     logging.info("Measurement stopped by user")
-    mqtt_client.loop_stop()
-    mqtt_client.disconnect()
+    mqttc.loop_stop()
+    mqttc.disconnect()
 except Exception as e:
     logging.error(f"Error: {e}")
