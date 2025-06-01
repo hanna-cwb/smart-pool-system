@@ -33,7 +33,7 @@ This folder contains all final working scripts divided into publishers and subsc
 
 | Script                         | Topic | Description | 
 |--------------------------------|-------------|-------------|
-| `B_Servo_Subscriber.py`        | waterlevel, pummpStatus  | Controls a servo motor (e.g. for water inflow control) |
+| `B_Servo_Subscriber.py`        | waterlevel, pumpStatus  | Controls a servo motor (e.g. for water inflow control) |
 | `B_Waterlevel_Publisher.py`    | waterlevel | Publishes water level data from an ultrasonic sensor |
 | `E_TimeSignal_Subscriber.py`   | timeSignal |  |
 | `E_TimeSignal_Publisher.py`    | timeSignal | Sends time signals for scheduling |
@@ -71,7 +71,7 @@ Each script connects to a local MQTT broker and communicates via structured topi
 
 - Slide Switch 
 - LEDs
-- Breadboard
+- Breadboard, Cables, Resistors
 
 ### Software
 
@@ -86,6 +86,7 @@ Each script connects to a local MQTT broker and communicates via structured topi
   - `opencv-python`
   -  etc...
     
+TODO komisches Git vom E Paper display
 ---
 
 ## Getting Started
@@ -128,8 +129,6 @@ Download needed packages in the venv environment
 pip install ...
 ```
 
-TODO komisches Git vom E Paper display
-
 #### b. Raspberry Pi 5
 
 Set Up the Homeassistant environment on the Raspberry Pi 5
@@ -156,20 +155,19 @@ Set up MQTT integration in Home Assistant and add sensors using MQTT topics publ
 ---
 
 ### Authors
-| Name               | ID       | Module(s)                 |
-| ------------------ | -------- | ------------------------- |
-| Lea Tuschner       | 12208053 | Temperature + Display     |
-| Evelyn Chea        | 12023171 | Time signal + automation  |
-| Hanna Schwaiger    | 12211249 | pH sensor + LED + Servo   |
-| Lejla Becirovic    | 12213605 | Water level + Servo       |
-| Hermine Stöttinger | 12211105 | Motion detection + Camera |
-| Ricarda Humer      | 12025965 | Photocell + Light control |
+| Name               | ID       |
+| ------------------ | -------- |
+| Lea Tuschner       | 12208053 |
+| Evelyn Chea        | 12023171 |
+| Hanna Schwaiger    | 12211249 |
+| Lejla Becirovic    | 12213605 |
+| Hermine Stöttinger | 12211105 |
+| Ricarda Humer      | 12025965 |
 
 ---
 
 ### License
 This project was developed as part of a university course and is intended for educational use.
-TODO Weg?
 
 ---
 
