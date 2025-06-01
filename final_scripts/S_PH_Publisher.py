@@ -52,7 +52,6 @@ try:
         ph_value = voltage_to_ph(voltage)
         print(f"Publishing: pH = {ph_value}, Voltage = {voltage:.3f} V")
         mqttc.publish("/sensor/ph", ph_value)
-        #mqttc.publish("sensor/ph_voltage", voltage)
         time.sleep(2)
 
 except KeyboardInterrupt:

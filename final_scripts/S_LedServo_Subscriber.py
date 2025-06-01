@@ -34,9 +34,8 @@ def set_servo_pulse(pca, channel, pulse_us):
     pwm_value = int(pulse_us * pulse_scale)
     pca.channels[channel].duty_cycle = pwm_value
     
-# Steuerfunktionen
+# Control functions
 def activate_servo():
-    #pca.channels[SERVO_CHANNEL].duty_cycle = 0x6000 #default 0x6000
     set_servo_pulse(pca, SERVO_CHANNEL, 1580)
     mqttc.publish(MQTT_TOPIC_SERVO, "on")
 

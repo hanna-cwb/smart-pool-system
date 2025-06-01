@@ -106,7 +106,7 @@ def publish_image(filepath):
         b64img = base64.b64encode(img.read()).decode()
         mqttc.publish(MQTT_IMG_TOPIC, b64img)
 
-# frame saving
+# Frame saving
 def save_current_frame(source):
     global current_frame
     
@@ -131,7 +131,7 @@ def save_current_frame(source):
             logging.error("Error while saving foto")
             return False
 
-# Define mqtt start
+# Define MQTT start
 def start_mqtt():
     try:
         mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
@@ -150,7 +150,7 @@ def start_mqtt():
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Run the Flask app and mqtt
+# Run the Flask app and MQTT
 if __name__ == '__main__':
     threading.Thread(target=start_mqtt, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)
