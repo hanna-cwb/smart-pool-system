@@ -16,7 +16,7 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/temperature"
 
-# Define MQTT Handlers
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")

@@ -25,7 +25,7 @@ def display_temperature(temp_str):
     draw.text((10, 40), f"Temp: {temp_str}°C", font=font, fill=0)
     epd.display(epd.getbuffer(image))
 
-# MQTT Event Handlers
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")

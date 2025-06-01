@@ -36,7 +36,7 @@ def get_distance():
     distance = (stop - start) * 34300 / 2
     return round(distance, 2)
 
-# MQTT Callbacks
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")
@@ -49,8 +49,8 @@ def on_publish(client, userdata, mid):
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
-
 mqttc.on_connect = on_connect
+mqttc.on_publish = on_publish
 
 try:
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
@@ -58,20 +58,18 @@ try:
 
     logging.info("Starting water level measurement...")
 
-    try:
-        while True:
-            dist = get_distance()
-            logging.info(f"Publishing: Distance = {dist} cm")
-            mqttc.publish(MQTT_TOPIC, dist)
-            time.sleep(2)
+    while True:
+        dist = get_distance()
+        logging.info(f"Publishing: Distance = {dist} cm")
+        mqttc.publish(MQTT_TOPIC, dist)
+        time.sleep(2)
 
-    except KeyboardInterrupt:
-        logging.info("Measurement stopped by user.")
 
+except KeyboardInterrupt:
+    logging.info("Measurement stopped by user.")
+except Exception as e:
+    logging.error(f"MQTT Error: {e}")
+finally:
     mqttc.loop_stop()
     mqttc.disconnect()
-
-except Exception as e:
-    logging.error(f"Error: {e}")
-finally:
     GPIO.cleanup()

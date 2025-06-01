@@ -33,8 +33,7 @@ picam2.preview_configuration.main.format = "RGB888"
 picam2.preview_configuration.controls.FrameRate = 30
 picam2.configure("preview")
 picam2.start()
-
-time.sleep(2)  # Allow camera to warm up
+time.sleep(2)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -42,10 +41,6 @@ app = Flask(__name__)
 # Shared variable for the current frame
 current_frame = None
 frame_lock = threading.Lock()
-
-# Initialize MQTT Client
-mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
 # Generate frame
 def generate_frame():
@@ -55,28 +50,56 @@ def generate_frame():
     with frame_lock:
         current_frame = frame.copy()
 
-
 # Function to generate frames for the video stream
 def generate_frames():
     global current_frame
     while True:
-        # Capture frame-by-frame
         frame = picam2.capture_array(wait=True)
 
         with frame_lock:
             current_frame = frame.copy()
 
-        # Encode the frame as JPEG
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
             continue
         
-        # Convert to byte array
         frame = buffer.tobytes()
         
         # Yield the frame in a format that can be streamed over HTTP
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+# Define MQTT Event Handlers
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        logging.info("Connected to MQTT Broker successfully")
+        if MQTT_TOPIC:
+            client.subscribe(MQTT_TOPIC, qos=0)
+        else:
+            logging.warning("MQTT_TOPIC is empty. Subscription skipped.")
+    else:
+        logging.error(f"Failed to connect, return code {rc}")
+
+def on_subscribe(client, userdata, mid, granted_qos):
+    logging.info(f"Subscribed to MQTT Topic: {MQTT_TOPIC} with QoS {granted_qos}")
+
+def on_message(client, userdata, msg):
+    message = msg.payload.decode()
+    if message == "Capture":
+        print("Nachricht empfangen: Capture")
+        save_current_frame("mqtt_trigger")
+    logging.info(f"Received Message: {msg.payload.decode()} from Topic: {msg.topic}")
+
+def on_publish(client, userdata, mid):
+    logging.info("Message Published successfully")
+
+# Initialize MQTT Client
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
+mqttc.on_connect = on_connect
+mqttc.on_subscribe = on_subscribe
+mqttc.on_message = on_message
+mqttc.on_publish = on_publish
 
 def publish_image(filepath):
     with open(filepath, "rb") as img:
@@ -108,56 +131,26 @@ def save_current_frame(source):
             logging.error("Error while saving foto")
             return False
 
-# Define on_connect event Handler
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        logging.info("Connected to MQTT Broker successfully")
-        if MQTT_TOPIC:
-            client.subscribe(MQTT_TOPIC, qos=0)
-        else:
-            logging.warning("MQTT_TOPIC is empty. Subscription skipped.")
-    else:
-        logging.error(f"Failed to connect, return code {rc}")
-
-# Define on_subscribe event Handler
-def on_subscribe(client, userdata, mid, granted_qos):
-    logging.info(f"Subscribed to MQTT Topic: {MQTT_TOPIC} with QoS {granted_qos}")
-
-# Define on_message event Handler
-def on_message(client, userdata, msg):
-    message = msg.payload.decode()
-    if message == "Capture":
-        print("Nachricht empfangen: Capture")
-        save_current_frame("mqtt_trigger")
-    logging.info(f"Received Message: {msg.payload.decode()} from Topic: {msg.topic}")
-
-# Define on_publish event Handler
-def on_publish(client, userdata, mid):
-    logging.info("Message Published successfully")
-
-# Register Event Handlers
-mqttc.on_connect = on_connect
-mqttc.on_subscribe = on_subscribe
-mqttc.on_message = on_message
-mqttc.on_publish = on_publish
-
+# Define mqtt start
 def start_mqtt():
     try:
-        # Connect to MQTT Broker
         mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-        
-        # Start the network loop
         mqttc.loop_forever()
 
+    except KeyboardInterrupt:
+        logging.info("Measurement stopped by user.")
     except Exception as e:
         logging.error(f"MQTT Error: {e}")
+    finally:
+        mqttc.loop_stop()
+        mqttc.disconnect()
 
 # Route to stream the video
 @app.route('/video')
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Run the Flask app
+# Run the Flask app and mqtt
 if __name__ == '__main__':
     threading.Thread(target=start_mqtt, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, threaded=True)

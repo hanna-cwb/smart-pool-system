@@ -13,7 +13,7 @@ MQTT_TOPIC_HUM = "/sensor/humidity"
 # Initialize temperature sensor DHT11 (GPIO4)
 sensor = adafruit_dht.DHT22(board.D4)
 
-# Define MQTT Handlers
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")
@@ -29,10 +29,10 @@ mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 
-mqttc.connect(MQTT_BROKER, MQTT_PORT, 60)
-mqttc.loop_start()
-
 try:
+    mqttc.connect(MQTT_BROKER, MQTT_PORT, 60)
+    mqttc.loop_start()
+
     while True:
         try:
             temp = sensor.temperature
@@ -46,13 +46,13 @@ try:
                 mqttc.publish(MQTT_TOPIC_TEMP, temp)
                 mqttc.publish(MQTT_TOPIC_HUM, hum)
             else:
-                print("Sensor liefert keine Werte")
+                print("No values detected")
 
         except RuntimeError as e:
-            print(f"Sensorfehler: {e}")
+            print(f"Sensor error: {e}")
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("Beende Programm...")
+    print("Stopped program...")
     mqttc.loop_stop()
     mqttc.disconnect()

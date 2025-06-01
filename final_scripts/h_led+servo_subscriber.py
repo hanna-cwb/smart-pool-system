@@ -41,15 +41,18 @@ def activate_servo():
 def deactivate_servo():
     pca.channels[SERVO_CHANNEL].duty_cycle = 0x0000
 
-# MQTT Callback
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     print("MQTT verbunden.")
     client.subscribe("/sensor/ph")
+    
+def on_subscribe(client, userdata, mid, granted_qos):
+    logging.info(f"Subscribed to MQTT Topic: {MQTT_TOPIC} with QoS {granted_qos}")
 
 def on_message(client, userdata, msg):
     try:
         ph = float(msg.payload.decode())
-        print(f"Empfangen: pH = {ph}")
+        print(f"Received: pH = {ph}")
         if ph > 7.24:
             GPIO.output(LED_PIN, GPIO.HIGH)
             activate_servo()
@@ -57,33 +60,31 @@ def on_message(client, userdata, msg):
             GPIO.output(LED_PIN, GPIO.LOW)
             deactivate_servo()
     except ValueError:
-        print("Ungültiger pH-Wert.")
+        print("Unvalid pH-Value.")
 
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
-# Register Event Handlers
+
 mqttc.on_connect = on_connect
-#mqttc.on_subscribe = on_subscribe
+mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
   
 try:
-    try:
-        while True:
-            # Connect to MQTT Broker
-            mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-            
-            # Start the network loop
-            mqttc.loop_forever()
-    except KeyboardInterrupt:
-      deactivate_servo()
-      GPIO.output(LED_PIN, GPIO.LOW)
-      print("\nMessung beendet.")
+    while True:
+        # Connect to MQTT Broker
+        mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+        mqttc.loop_forever()
 
+      
+except KeyboardInterrupt:
+    logging.info("Measurement stopped by user.")
 except Exception as e:
+    logging.error(f"MQTT Error: {e}")
+finally:
     deactivate_servo()
-    logging.error(f"MQTT Error: {e}")  
+    GPIO.output(LED_PIN, GPIO.LOW)
     GPIO.cleanup()
     pca.deinit()
-      
+    mqttc.loop_stop()
+    mqttc.disconnect()

@@ -31,7 +31,7 @@ def set_servo_pulse(pca, channel, pulse_us):
     pwm_value = int(pulse_us * pulse_scale)
     pca.channels[channel].duty_cycle = pwm_value
 
-# MQTT Callbacks
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT broker.")
@@ -44,11 +44,11 @@ def on_message(client, userdata, msg):
         dist = float(msg.payload.decode())
         logging.info(f"Received distance: {dist} cm")
         if dist > 15:
-            logging.info("Low water level – turning pump ON")
+            logging.info("Low water level - turning pump ON")
             mqttc.publish(MQTT_TOPIC_PUMP, "pump on")
             set_servo_pulse(pca, SERVO_CHANNEL, 1520)
         else:
-            logging.info("High water level – turning pump OFF")
+            logging.info("High water level - turning pump OFF")
             mqttc.publish(MQTT_TOPIC_PUMP, "pump off")
             set_servo_pulse(pca, SERVO_CHANNEL, 1570)
     except ValueError:
@@ -66,9 +66,10 @@ try:
 
 except KeyboardInterrupt:
     logging.info("Measurement stopped by user.")
-    set_servo_pulse(pca, SERVO_CHANNEL, 1570)
-    pca.deinit()
 except Exception as e:
     logging.error(f"MQTT Error: {e}")
+finally:
     set_servo_pulse(pca, SERVO_CHANNEL, 1570)
     pca.deinit()
+    mqttc.loop_stop()
+    mqttc.disconnect()

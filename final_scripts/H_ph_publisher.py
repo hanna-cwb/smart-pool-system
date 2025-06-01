@@ -9,50 +9,44 @@ import logging
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
 # MQTT Configuration
 MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/ph"
 
-# I2C-Verbindung
+# Initialize I2C-Connection
 i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1115(i2c)
 channel = AnalogIn(ads, ADS.P0)
 
-# Define on_connect event Handler
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")
     else:
         logging.error(f"Failed to connect, return code {rc}")
 
-# Define on_publish event Handler
 def on_publish(client, userdata, mid):
     logging.info("Message Published successfully")
 
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
-
-# Register Event Handlers
 mqttc.on_connect = on_connect
-#mqttc.on_publish = on_publish
+mqttc.on_publish = on_publish
 
-# Kalibrierung: 2.667 V = pH 7
+# Calibration: 2.667 V = pH 7
 def voltage_to_ph(voltage):
     ph = 7 - ((voltage - 2.667) * 6)
     return round(ph, 2)
  
 try:
-    # Connect to MQTT Broker
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
-    # Start MQTT loop to handle callbacks
     mqttc.loop_start()
 
-    print("Starte Messung...")
+    print("Start measuring...")
 
     try:
       while True: 
@@ -63,7 +57,7 @@ try:
         #mqttc.publish("sensor/ph_voltage", voltage)
         time.sleep(2)
     except KeyboardInterrupt:
-      print("\nMessung beendet.")
+      print("\Measuring finished.")
 
     # Give some time for message to be sent before disconnecting
     mqttc.loop_stop()

@@ -23,10 +23,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 ads = ADS.ADS1115(i2c)
 analog_channel = AnalogIn(ads, ADS.P1) # A1
 
-# MQTT client configuration
-mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-mqttc.username_pw_set(username="mqtt-user", password="mqtt")
-
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT broker successfully")
@@ -36,7 +33,9 @@ def on_connect(client, userdata, flags, rc):
 def on_publish(client, userdata, mid):
     logging.info("Message published successfully")
 
-# Register event handlers
+# Initialize MQTT Client
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
 

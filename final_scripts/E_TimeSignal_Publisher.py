@@ -3,25 +3,23 @@ from datetime import datetime
 import logging
 import paho.mqtt.client as mqtt
 
-# === Logging Configuration ===
+# Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# === MQTT Configuration ===
+# MQTT Configuration
 MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
-# === Time Schedule: (HH:MM, Duration in Minutes)
+# Time Schedule: (HH:MM, Duration in Minutes)
 PUMP_SCHEDULE = [("13:58", 2), ("18:00", 2)]
 
-
 def display_status(time_str, status_text):
-    # Simulierte Display-Ausgabe ohne GPIO/epd
+    # Simulate Display-Output without GPIO/epd
     print(f"[DISPLAY SIMULATION] Uhrzeit: {time_str} | Pumpe: {status_text}")
 
-
-# === MQTT Event Handlers ===
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT Broker successfully")
@@ -31,7 +29,7 @@ def on_connect(client, userdata, flags, rc):
 def on_publish(client, userdata, mid):
     logging.info("Message Published successfully")
 
-# === Main Code ===
+# Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 mqttc.on_connect = on_connect
@@ -67,6 +65,10 @@ try:
 
         time.sleep(10)
 
+except KeyboardInterrupt:
+    logging.info("Measurement stopped by user.")
 except Exception as e:
     logging.error(f"MQTT Error: {e}")
+finally:
     mqttc.loop_stop()
+    mqttc.disconnect()

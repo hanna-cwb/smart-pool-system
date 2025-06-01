@@ -16,10 +16,7 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/light"
 
-# MQTT client configuration
-mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-mqttc.username_pw_set("mqtt-user", "mqtt")
-
+# Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         logging.info("Connected to MQTT broker successfully")
@@ -43,7 +40,9 @@ def on_message(client, userdata, msg):
     else:
         logging.warning(f"Unknown command received: {message}")
 
-# Register event handlers
+# Initialize MQTT Client
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set("mqtt-user", "mqtt")
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
