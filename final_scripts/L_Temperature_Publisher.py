@@ -53,6 +53,9 @@ try:
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("Stopped program...")
+    logging.info("Measurement stopped by user.")
+except Exception as e:
+    logging.error(f"MQTT Error: {e}")
+finally:
     mqttc.loop_stop()
     mqttc.disconnect()

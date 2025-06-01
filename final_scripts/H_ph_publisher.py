@@ -43,26 +43,22 @@ def voltage_to_ph(voltage):
  
 try:
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-
     mqttc.loop_start()
 
     print("Start measuring...")
 
-    try:
-      while True: 
+    while True: 
         voltage = channel.voltage
         ph_value = voltage_to_ph(voltage)
         print(f"Publishing: pH = {ph_value}, Voltage = {voltage:.3f} V")
         mqttc.publish("/sensor/ph", ph_value)
         #mqttc.publish("sensor/ph_voltage", voltage)
         time.sleep(2)
-    except KeyboardInterrupt:
-      print("\Measuring finished.")
 
-    # Give some time for message to be sent before disconnecting
+except KeyboardInterrupt:
+    logging.info("Measurement stopped by user.")
+except Exception as e:
+    logging.error(f"MQTT Error: {e}")
+finally:
     mqttc.loop_stop()
     mqttc.disconnect()
-
-except Exception as e:
-    logging.error(f"Error: {e}")
-   

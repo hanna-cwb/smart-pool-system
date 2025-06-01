@@ -86,7 +86,7 @@ def on_subscribe(client, userdata, mid, granted_qos):
 def on_message(client, userdata, msg):
     message = msg.payload.decode()
     if message == "Capture":
-        print("Nachricht empfangen: Capture")
+        print("Received message: Capture")
         save_current_frame("mqtt_trigger")
     logging.info(f"Received Message: {msg.payload.decode()} from Topic: {msg.topic}")
 

@@ -14,6 +14,7 @@ MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/ph"
+MQTT_TOPIC_SERVO = "/sensor/phPumpStatus"
 
 # Hardware Setup
 LED_PIN = 17
@@ -37,14 +38,19 @@ def set_servo_pulse(pca, channel, pulse_us):
 def activate_servo():
     #pca.channels[SERVO_CHANNEL].duty_cycle = 0x6000 #default 0x6000
     set_servo_pulse(pca, SERVO_CHANNEL, 1580)
+    mqttc.publish(MQTT_TOPIC_SERVO, "on")
 
 def deactivate_servo():
     pca.channels[SERVO_CHANNEL].duty_cycle = 0x0000
+    mqttc.publish(MQTT_TOPIC_SERVO, "off")
 
 # Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
-    print("MQTT verbunden.")
-    client.subscribe("/sensor/ph")
+    if rc == 0:
+        logging.info("Connected to MQTT broker.")
+        client.subscribe(MQTT_TOPIC)
+    else:
+        logging.error(f"Connection failed with return code {rc}")
     
 def on_subscribe(client, userdata, mid, granted_qos):
     logging.info(f"Subscribed to MQTT Topic: {MQTT_TOPIC} with QoS {granted_qos}")
@@ -60,22 +66,24 @@ def on_message(client, userdata, msg):
             GPIO.output(LED_PIN, GPIO.LOW)
             deactivate_servo()
     except ValueError:
-        print("Unvalid pH-Value.")
+        print("Invalid pH-Value.")
+        
+def on_publish(client, userdata, mid):
+    logging.info("Message published successfully")
 
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
-
 mqttc.on_connect = on_connect
 mqttc.on_subscribe = on_subscribe
 mqttc.on_message = on_message
+mqttc.on_publish = on_publish
   
 try:
     while True:
         # Connect to MQTT Broker
         mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
         mqttc.loop_forever()
-
       
 except KeyboardInterrupt:
     logging.info("Measurement stopped by user.")

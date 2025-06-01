@@ -54,11 +54,15 @@ def on_message(client, userdata, msg):
     except ValueError:
         logging.error("Invalid distance value received.")
 
+def on_publish(client, userdata, mid):
+    logging.info("Message Published successfully")
+
 # Initialize MQTT Client
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 mqttc.username_pw_set(username="mqtt-user", password="mqtt")
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
+mqttc.on_publish = on_publish
 
 try:
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)

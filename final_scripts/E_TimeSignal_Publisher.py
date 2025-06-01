@@ -12,12 +12,12 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
-# Time Schedule: (HH:MM, Duration in Minutes)
+# Time Schedule: (HH:MM, Duration in minutes)
 PUMP_SCHEDULE = [("05:53", 2), ("18:00", 2)]
 
+# Simulate Display-Output without GPIO/epd
 def display_status(time_str, status_text):
-    # Simulate Display-Output without GPIO/epd
-    print(f"[DISPLAY SIMULATION] Uhrzeit: {time_str} | Pumpe: {status_text}")
+    print(f"[DISPLAY SIMULATION] Time: {time_str} | Pump: {status_text}")
 
 # Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
@@ -42,7 +42,7 @@ try:
     pumpe_aktiv = False
     startzeit = None
 
-    logging.info("Time Signal Publisher gestartet.")
+    logging.info("Time Signal Publisher started.")
 
     while True:
         jetzt = datetime.now()
@@ -52,16 +52,16 @@ try:
             if aktuelle_zeit == start and not pumpe_aktiv:
                 pumpe_aktiv = True
                 startzeit = jetzt
-                logging.info(f"Pumpe EIN ({aktuelle_zeit})")
-                mqttc.publish(MQTT_TOPIC, "ein")
-                display_status(aktuelle_zeit, "EIN")
+                logging.info(f"Pump ON ({aktuelle_zeit})")
+                mqttc.publish(MQTT_TOPIC, "on")
+                display_status(aktuelle_zeit, "ON")
 
         if pumpe_aktiv and (datetime.now() - startzeit).seconds >= dauer * 60:
             pumpe_aktiv = False
             aktuelle_zeit = datetime.now().strftime("%H:%M")
-            logging.info(f"Pumpe AUS ({aktuelle_zeit})")
-            mqttc.publish(MQTT_TOPIC, "aus")
-            display_status(aktuelle_zeit, "AUS")
+            logging.info(f"Pump OFF ({aktuelle_zeit})")
+            mqttc.publish(MQTT_TOPIC, "off")
+            display_status(aktuelle_zeit, "OFF")
 
         time.sleep(10)
 

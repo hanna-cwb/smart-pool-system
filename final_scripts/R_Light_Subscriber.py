@@ -19,10 +19,10 @@ MQTT_TOPIC = "/sensor/light"
 # Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        logging.info("Connected to MQTT broker successfully")
+        logging.info("Connected to MQTT broker.")
         client.subscribe(MQTT_TOPIC)
     else:
-        logging.error(f"Connection failed, return code: {rc}")
+        logging.error(f"Connection failed with return code {rc}")
 
 def on_subscribe(client, userdata, mid, granted_qos):
     logging.info(f"Subscribed to MQTT Topic: {MQTT_TOPIC} with qos {granted_qos}")
@@ -50,9 +50,12 @@ mqttc.on_message = on_message
 try:
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
     mqttc.loop_forever()
+
 except KeyboardInterrupt:
-    logging.info("Program stopped by user")
+    logging.info("Measurement stopped by user.")
 except Exception as e:
-    logging.error(f"Error: {e}")
+    logging.error(f"MQTT Error: {e}")
 finally:
+    mqttc.loop_stop()
+    mqttc.disconnect()
     GPIO.cleanup()

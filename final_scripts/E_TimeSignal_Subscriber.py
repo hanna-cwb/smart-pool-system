@@ -11,17 +11,17 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/timeSignal"
 
+# Simulate Display-Output without GPIO/epd
 def display_status(time_str, status_text):
-    # Simulate Display-Output without GPIO/epd
     print(f"[DISPLAY SIMULATION] Time: {time_str} | Pump: {status_text}")
 
 # Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        logging.info("Connected to MQTT Broker successfully")
+        logging.info("Connected to MQTT broker.")
         client.subscribe(MQTT_TOPIC)
     else:
-        logging.error(f"Failed to connect, return code {rc}")
+        logging.error(f"Connection failed with return code {rc}")
 
 def on_subscribe(client, userdata, mid, granted_qos):
     logging.info(f"Subscribed to {MQTT_TOPIC} with QoS {granted_qos}")
@@ -29,8 +29,8 @@ def on_subscribe(client, userdata, mid, granted_qos):
 def on_message(client, userdata, msg):
     payload = msg.payload.decode('utf-8').strip().lower()
     logging.info(f"Received Message: {payload}")
-    if payload in ['ein', 'aus']:
-        display_status(datetime.now().strftime("%H:%M"), 'EIN' if payload=='ein' else 'AUS')
+    if payload in ['on', 'off']:
+        display_status(datetime.now().strftime("%H:%M"), 'ON' if payload=='on' else 'OFF')
     else:
         logging.warning(f"Unknown payload: {payload}")
 

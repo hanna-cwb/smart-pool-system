@@ -14,7 +14,6 @@ MQTT_TOPIC = "/sensor/temperature"
 
 # E-Paper Display Setup
 epd = epd1in54_V2.EPD()
-#epd.init()
 epd.init(isPartial=False)
 epd.Clear(0xFF)
 font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 24)
@@ -51,5 +50,12 @@ mqttc.on_message = on_message
 try:
     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
     mqttc.loop_forever()
+
+except KeyboardInterrupt:
+    logging.info("Measurement stopped by user.")
 except Exception as e:
     logging.error(f"MQTT Error: {e}")
+finally:
+    mqttc.loop_stop()
+    mqttc.disconnect()
+    
