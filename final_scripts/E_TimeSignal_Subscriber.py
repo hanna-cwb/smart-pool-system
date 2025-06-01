@@ -22,7 +22,7 @@ font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf',
 def display_status(status_text):
     image = Image.new('1', (epd.height, epd.width), 255)
     draw = ImageDraw.Draw(image)
-    draw.text((10, 40), f"Pumpstatus: {status_text}°C", font=font, fill=0)
+    draw.text((10, 40), f"Status: {status_text}", font=font, fill=0)
     epd.display(epd.getbuffer(image))
 
 # Simulate Display-Output without GPIO/epd
@@ -41,7 +41,7 @@ def on_subscribe(client, userdata, mid, granted_qos):
     logging.info(f"Subscribed to {MQTT_TOPIC} with QoS {granted_qos}")
 
 def on_message(client, userdata, msg):
-    payload = msg.payload.decode('utf-8').strip().lower()
+    payload = msg.payload.decode()
     logging.info(f"Received Message: {payload}")
     if payload in ['on', 'off']:
         display_status('ON' if payload=='on' else 'OFF')
