@@ -17,8 +17,8 @@ MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/light"
 
 # MQTT client configuration
-mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-mqtt_client.username_pw_set("mqtt-user", "mqtt")
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+mqttc.username_pw_set("mqtt-user", "mqtt")
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -44,13 +44,13 @@ def on_message(client, userdata, msg):
         logging.warning(f"Unknown command received: {message}")
 
 # Register event handlers
-mqtt_client.on_connect = on_connect
-mqtt_client.on_subscribe = on_subscribe
-mqtt_client.on_message = on_message
+mqttc.on_connect = on_connect
+mqttc.on_subscribe = on_subscribe
+mqttc.on_message = on_message
 
 try:
-    mqtt_client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-    mqtt_client.loop_forever()
+    mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+    mqttc.loop_forever()
 except KeyboardInterrupt:
     logging.info("Program stopped by user")
 except Exception as e:
