@@ -42,7 +42,7 @@ app = Flask(__name__)
 current_frame = None
 frame_lock = threading.Lock()
 
-# Generate frame
+# Generate frame for capturing
 def generate_frame():
     global current_frame
     
@@ -50,7 +50,7 @@ def generate_frame():
     with frame_lock:
         current_frame = frame.copy()
 
-# Function to generate frames for the video stream
+# Generate frames for the video stream
 def generate_frames():
     global current_frame
     while True:

@@ -22,9 +22,10 @@ sensor = adafruit_vl6180x.VL6180X(i2c)
 # Define MQTT Event Handlers
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        logging.info("Connected to MQTT Broker successfully")
+        logging.info("Connected to MQTT broker.")
+        client.subscribe(MQTT_TOPIC)
     else:
-        logging.error(f"Failed to connect, return code {rc}")
+        logging.error(f"Connection failed with return code {rc}")
 
 def on_publish(client, userdata, mid):
     logging.info("Message Published successfully")
