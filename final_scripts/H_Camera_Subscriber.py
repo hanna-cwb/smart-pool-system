@@ -17,7 +17,7 @@ MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/distance"
-MQTT_IMG_TOPIC = "/camera/images"
+MQTT_IMG_TOPIC = "/sensor/images"
 
 # Directory for saving photos
 IMAGE_FOLDER = os.path.join(os.path.dirname(__file__), "Images")

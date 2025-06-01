@@ -8,7 +8,7 @@ This project is an Internet of Things (IoT) based Smart Pool Control System deve
 
 The system is designed to:
 
-- Monitor **water temperature**, **pH level**, **water level**, **light intensity**, **motion** and **time display**
+- Monitor **water temperature**, **pH level**, **water level**, **light intensity**, **motion** and **time**
 - Control actuators such as **LEDs**, **servo motors**, **camera** and **display**
 - Visualize data via **Home Assistant**
 - Use **MQTT** as a communication protocol to connect distributed components
@@ -31,23 +31,22 @@ The Raspberry Pi serves as the central hub. Each sensor or actuator is connected
 
 This folder contains all final working scripts divided into publishers and subscribers:
 
-| Script                         | Description |
-|--------------------------------|-------------|
-| `B_Servo_Subscriber.py`        | Controls a servo motor (e.g. for water inflow control) |
-| `B_Waterlevel_Publisher.py`    | Publishes water level data from an ultrasonic sensor |
-| `E_TimeSignal_Publisher.py`    | Sends time signals for scheduling |
-| `E_TimeSignal_Subscriber.py`   |  |
-| `H_Camera_Subscriber.py`       | Captures images on motion detection |
-| `H_Distance_Publisher.py`      | Publishes distance data from sensor |
-| `H_ph_publisher.py`            | Publishes pool pH value readings |
-| `L_Display_Subscriber.py`      | Displays incoming data on an e-paper display |
-| `L_Temp_Publisher.py`          | Publishes pool temperature (DHT sensor) |
-| `L_Temperature_Publisher.py`   | Alternative version of the temperature publisher |
-| `R_Light_Publisher.py`         | Publishes ambient light level |
-| `R_Light_Subscriber.py`        | Controls lighting based on received light values |
-| `h_led+servo_subscriber.py`    | Controls LED and servo together (e.g. for pH regulation) |
+| Script                         | Topic | Description | 
+|--------------------------------|-------------|-------------|
+| `B_Servo_Subscriber.py`        | waterlevel, pummpStatus  | Controls a servo motor (e.g. for water inflow control) |
+| `B_Waterlevel_Publisher.py`    | waterlevel | Publishes water level data from an ultrasonic sensor |
+| `E_TimeSignal_Subscriber.py`   | timeSignal |  |
+| `E_TimeSignal_Publisher.py`    | timeSignal | Sends time signals for scheduling |
+| `H_Camera_Subscriber.py`       | distance, images | Captures images on motion detection and generates a video stream |
+| `H_Distance_Publisher.py`      | distance | Publishes distance data from sensor |
+| `L_Display_Subscriber.py`      | temperature | Displays incoming data on an e-paper display |
+| `L_Temperature_Publisher.py`   | temperature, humidity | Alternative version of the temperature publisher |
+| `R_Light_Subscriber.py`        | light | Controls lighting based on received light values |
+| `R_Light_Publisher.py`         | light | Publishes ambient light level |
+| `S_LedServo_Subscriber.py`     | ph, phPumpStatus | Controls LED and servo together (e.g. for pH regulation) |
+| `S_PH_Publisher.py`            | ph | Publishes pool pH value readings |
 
-Each script connects to a local MQTT broker and communicates via structured topics such as `pool/temperature/value` or `pool/ph/control`.
+Each script connects to a local MQTT broker and communicates via structured topics such as `sensor/temperature` or `sensor/distance`.
 
 ---
 
@@ -55,18 +54,24 @@ Each script connects to a local MQTT broker and communicates via structured topi
 
 ### Hardware
 
-- Raspberry Pi 4
+- Raspberry Pi 4 
 - Raspberry Pi 5
+- Homeassistant dinges TODO Hanna
+- Servo HAT for Raspberry Py
+- Analog Digital Converter (1115 ADS Module)
+
 - Temperature Sensor (DS18B20)
 - pH Sensor (GAOQHOU)
 - Ultrasonic Sensor (HC-SR04)
-- Photocell Sensor
-- Slide Switch 
+- Photocell Sensor (5506 LDR)
 - Motion Sensor (VL6180X)
 - E-paper Display
 - Raspberry Pi Camera Board v2
-- LEDs, Servo Motors
-- Breadboard, Power Supply
+- 2 Servo Motors (FeeTech FS5103R, DC Motor in Micro Servo Body)
+
+- Slide Switch 
+- LEDs
+- Breadboard
 
 ### Software
 
@@ -85,15 +90,65 @@ Each script connects to a local MQTT broker and communicates via structured topi
 
 ## Getting Started
 
-### 1. Set up the MQTT Broker
+### 1. Set up
+
+#### a. Raspberry Pi 4
+
+Wire the Raspberry Pi 4 and the needed components (actors, sensors, etc. )
+
+Connect your device and the Raspberry Pi 4 via WLAN, ensure to use the correct IP address
+
+```
+ssh admin@192.168.8.113
+```
+
+Enable the needed Interfaces I2C and PIS in the Raspberry Configurations: 
+TODO Hanna wirklich PIS?
+
+```
+sudo raspi-config
+```
+Interfacing Options > I2C > Enable
+
+Interfacing Options > PIS > Enable
+
+```
+sudo reboot
+```
+
+Create and activate and virtuale environment:
+
+```
+python3 -m venv vl6180x-env
+source ~vl6180x-env/bin/activate
+```
+
+Download needed packages in the venv environment
+```
+pip install ...
+```
+
+TODO komisches Git vom E Paper display
+
+#### b. Raspberry Pi 5
+
+Set Up the Homeassistant environment on the Raspberry Pi 5
 
 Install the MQTT broker on the homeassistant.
 
-### 2. Run Sensor/Actuator Scripts
-Run each script individually on your Raspberry Pi (for example):
+Establish connection
 
-``python3 final_scripts/L_Temp_Publisher.py
-python3 final_scripts/L_Display_Subscriber.py``
+Configure displays
+
+TODO Hanna
+
+### 2. Run Sensor/Actuator Scripts
+
+Run each script individually on Raspberry Pi by executing the following command in seperate terminals on the device. Ensure that the connection is established and the venv environment is activated.
+
+```
+python3 B_Servo_Subscriber.py
+```
 
 ### 3. Connect Home Assistant
 Set up MQTT integration in Home Assistant and add sensors using MQTT topics published by the scripts.
@@ -114,8 +169,7 @@ Set up MQTT integration in Home Assistant and add sensors using MQTT topics publ
 
 ### License
 This project was developed as part of a university course and is intended for educational use.
+TODO Weg?
 
 ---
-
-
 
