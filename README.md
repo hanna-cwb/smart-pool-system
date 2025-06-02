@@ -35,8 +35,8 @@ This folder contains all final working scripts divided into publishers and subsc
 |--------------------------------|-------------|-------------|
 | `B_Servo_Subscriber.py`        | waterlevel, pumpStatus  | Controls a servo motor (e.g. for water inflow control) |
 | `B_Waterlevel_Publisher.py`    | waterlevel | Publishes water level data from an ultrasonic sensor |
-| `E_TimeSignal_Subscriber.py`   | timeSignal |  |
-| `E_TimeSignal_Publisher.py`    | timeSignal | Sends time signals for scheduling |
+| `E_TimeSignal_Subscriber.py`   | timeSignal | Displays pump status based on received time-triggered messages |
+| `E_TimeSignal_Publisher.py`    | timeSignal | Publishes scheduled on/off signals for simulated pump control |
 | `H_Camera_Subscriber.py`       | distance, images | Captures images on motion detection and generates a video stream |
 | `H_Distance_Publisher.py`      | distance | Publishes distance data from sensor |
 | `L_Display_Subscriber.py`      | temperature | Displays incoming data on an e-paper display |
