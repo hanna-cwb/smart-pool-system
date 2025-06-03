@@ -56,7 +56,7 @@ Each script connects to a local MQTT broker and communicates via structured topi
 
 - Raspberry Pi 4 
 - Raspberry Pi 5
-- Homeassistant dinges TODO Hanna
+- NVMe HDD
 - Servo HAT for Raspberry Pi (Adafruit 16-Channel PWM)
 - Analog Digital Converter (1115 ADS Module)
 
@@ -135,17 +135,19 @@ git clone https://github.com/waveshare/e-Paper.git
 #### 1.2. Raspberry Pi 5 & Homeassistant
 
 Set Up the Homeassistant environment on the Raspberry Pi 5
+- download latest HomeAssistant build from the Raspberry PI website
+- copy to the NVMe hard disk
+- start Raspberry Pi
+- follow the installer
+- create a HomeAssistant user
+- HomeAssistant displays its IP-address and port
+- connect to HomeAssistant via HTTP in the browser (given IP and port)
 
-Set up MQTT integration in Home Assistant and add sensors using MQTT topics published by the scripts.
-
-
-Install the MQTT broker on the homeassistant.
-
-Establish connection
-
-Configure displays
-
-TODO Hanna
+Further specific Set Up in the Brower View
+- install AddOns: mqtt explorer, mqtt mosquitto broker
+- create user for mqtt
+- add sensors and topics in configuration.yaml file 
+- create view for the project with the desired entities and reprensentations 
 
 ### 2. Run Sensor/Actuator Scripts
 
