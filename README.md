@@ -1,6 +1,6 @@
 # Smart Pool Control System – Group 13
 
-This project is an Internet of Things (IoT) based Smart Pool Control System developed as a university group project. It enables real-time monitoring and automation of various pool-related functions using Raspberry Pi, MQTT, sensors, actuators and Home Assistant.
+This project is an Internet of Things (IoT) based Smart Pool Control System developed as a university group project. It enables real-time monitoring and automation of various pool-related functions using Raspberry Pi 4, MQTT, sensors, actuators and Home Assistant on a Raspberry Pi 5.
 
 ---
 
@@ -17,12 +17,12 @@ The system is designed to:
 
 ## How the System Works
 
-The Raspberry Pi serves as the central hub. Each sensor or actuator is connected to a Python script (located in the `final_scripts` folder) that either publishes data or listens for control messages via MQTT.
+The Raspberry Pi 4 serves as the central hub. Each sensor or actuator is connected to a Python script (located in the `final_scripts` folder) that either publishes data or listens for control messages via MQTT.
 
 ### Workflow:
 
 1. **Sensors** (e.g., temperature, pH, light) publish readings via MQTT.
-2. **Subscribers** (e.g., display, motors) listen and act based on MQTT messages.
+2. **Subscribers/Actuators** (e.g., display, motors) listen and act based on MQTT messages.
 3. **Home Assistant** displays sensor values.
 
 ---
@@ -57,7 +57,7 @@ Each script connects to a local MQTT broker and communicates via structured topi
 - Raspberry Pi 4 
 - Raspberry Pi 5
 - Homeassistant dinges TODO Hanna
-- Servo HAT for Raspberry Py
+- Servo HAT for Raspberry Pi
 - Analog Digital Converter (1115 ADS Module)
 
 - Temperature Sensor (DS18B20)
@@ -65,13 +65,13 @@ Each script connects to a local MQTT broker and communicates via structured topi
 - Ultrasonic Sensor (HC-SR04)
 - Photocell Sensor (5506 LDR)
 - Motion Sensor (VL6180X)
-- E-paper Display
+- E-paper Display (Waveshare 1.54 Inch) 
 - Raspberry Pi Camera Board v2
 - 2 Servo Motors (FeeTech FS5103R, DC Motor in Micro Servo Body)
 
 - Slide Switch 
 - LEDs
-- Breadboard, Cables, Resistors
+- Breadboards, Cables, Resistors
 
 ### Software
 
@@ -103,25 +103,24 @@ Connect your device and the Raspberry Pi 4 via WLAN, ensure to use the correct I
 ssh admin@192.168.8.113
 ```
 
-Enable the needed Interfaces I2C and PIS in the Raspberry Configurations: 
-TODO Hanna wirklich PIS?
+Enable the needed Interfaces I2C and SPI in the Raspberry Configurations: 
 
 ```
 sudo raspi-config
 ```
 Interfacing Options > I2C > Enable
 
-Interfacing Options > PIS > Enable
+Interfacing Options > SPI > Enable
 
 ```
 sudo reboot
 ```
 
-Create and activate and virtuale environment:
+Create and activate the virtual environment:
 
 ```
 python3 -m venv vl6180x-env
-source ~vl6180x-env/bin/activate
+source ~vl6180x-venv/bin/activate
 ```
 
 Download needed packages in the venv environment
