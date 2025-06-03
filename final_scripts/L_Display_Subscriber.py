@@ -1,12 +1,8 @@
 import logging
 import time
-logging.info("1")
 import paho.mqtt.client as mqtt
-logging.info("2")
 from PIL import Image, ImageDraw, ImageFont
-logging.info("4")
 from waveshare_epd import epd1in54_V2
-logging.info("5")
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -16,14 +12,12 @@ MQTT_HOST = "192.168.8.137"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/temperature"
-logging.info("6")
 
 # E-Paper Display Setup
 epd = epd1in54_V2.EPD()
 epd.init(isPartial=False)
 epd.Clear(0xFF)
 font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', 24)
-logging.info("7")
 
 def display_temperature(temp_str):
     image = Image.new('1', (epd.height, epd.width), 255)

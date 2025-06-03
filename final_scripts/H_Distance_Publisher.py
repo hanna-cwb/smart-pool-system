@@ -14,6 +14,9 @@ MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/distance"
 
+# Threshold for motion detection in mm
+DISTANCE_THRESHOLD = 50
+
 # Initialize I2C-Bus 
 i2c = busio.I2C(board.SCL, board.SDA)
 # Initialize Sensor
@@ -48,7 +51,7 @@ try:
         distance = sensor.range
         print(f"Distance: {distance} mm")
         message = ""
-        if distance < 50:
+        if distance < DISTANCE_THRESHOLD:
             message = "Capture"
         else:
             message = "No motion detected"

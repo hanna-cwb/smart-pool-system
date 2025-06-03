@@ -16,6 +16,9 @@ MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/ph"
 MQTT_TOPIC_SERVO = "/sensor/phPumpStatus"
 
+# Threshold for ph value
+PH_THRESHOLD = 7.5
+
 # Hardware Setup
 LED_PIN = 17
 SERVO_CHANNEL = 0
@@ -58,7 +61,7 @@ def on_message(client, userdata, msg):
     try:
         ph = float(msg.payload.decode())
         print(f"Received: pH = {ph}")
-        if ph >= 7.5:
+        if ph >= PH_THRESHOLD:
             GPIO.output(LED_PIN, GPIO.HIGH)
             activate_servo()
         else:

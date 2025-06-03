@@ -16,6 +16,9 @@ MQTT_KEEPALIVE_INTERVAL = 5
 MQTT_TOPIC = "/sensor/waterlevel"
 MQTT_TOPIC_PUMP = "/sensor/pumpStatus"
 
+# Threshold for waterlevel detection in cm
+WATERLEVEL_THRESHOLD = 15
+
 # Hardware Setup
 SERVO_CHANNEL = 1
 
@@ -43,7 +46,7 @@ def on_message(client, userdata, msg):
     try:
         dist = float(msg.payload.decode())
         logging.info(f"Received distance: {dist} cm")
-        if dist > 15:
+        if dist > WATERLEVEL_THRESHOLD:
             logging.info("Low water level - turning pump ON")
             mqttc.publish(MQTT_TOPIC_PUMP, "pump on")
             set_servo_pulse(pca, SERVO_CHANNEL, 1520)
