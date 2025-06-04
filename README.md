@@ -135,7 +135,7 @@ git clone https://github.com/waveshare/e-Paper.git
 #### 1.2. Raspberry Pi 5 & Homeassistant
 
 Set Up the Homeassistant environment on the Raspberry Pi 5
-- download latest HomeAssistant build from the Raspberry PI website
+- download latest HomeAssistant build
 - copy to the NVMe hard disk
 - start Raspberry Pi
 - follow the installer
