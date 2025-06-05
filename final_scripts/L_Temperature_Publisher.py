@@ -10,7 +10,7 @@ MQTT_PORT = 1883
 MQTT_TOPIC_TEMP = "/sensor/temperature"
 MQTT_TOPIC_HUM = "/sensor/humidity"
 
-# Initialize temperature sensor DHT11 (GPIO4)
+# Initialize temperature sensor DHT22 (GPIO4)
 sensor = adafruit_dht.DHT22(board.D4)
 
 # Define MQTT Event Handlers
